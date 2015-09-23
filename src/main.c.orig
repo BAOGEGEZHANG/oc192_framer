@@ -9,8 +9,7 @@ int main(void)
     FILE *fp ;
     fp = fopen( "../tmp/rel.tmp", "rw+");
 
-    if (NULL == fp)
-    {
+    if (NULL == fp) {
         printf ("[main]:fopen file:../tmp/rel.tmp failed\n");
         exit(-1);
     }
@@ -23,11 +22,9 @@ int main(void)
     uint8_t hex_word;
 
     /* translate text_mode to hex */
-    while(fgets( tmp_line_buff, 128, fp))
-    {
+    while(fgets( tmp_line_buff, 128, fp)) {
         uint8_t tmp_count = 0 ;
-        while(tmp_count < 8)
-        {
+        while(tmp_count < 8) {
             strncpy(tmp_word_buff, tmp_line_buff + tmp_count * 8, 8);
             //  puts(tmp_word_buff);
 
@@ -48,25 +45,19 @@ NEXT:
     word_pos = word_pos;
     uint64_t sum_count = 0;
     uint64_t start_pos = 0;
-    while(1)
-    {
-        if(org_buff[word_pos++] == framer_start_flag )
-        {
-            if (sum_count == 0)
-            {
+    while(1) {
+        if(org_buff[word_pos++] == framer_start_flag )  {
+            if (sum_count == 0) {
                 start_pos = word_pos - 1;
             }
             sum_count ++;
             continue;
         }
 
-        if (word_pos > sizeof(org_buff))
-        {
+        if (word_pos > sizeof(org_buff)) {
             printf ("Not found framer flag\n");
             break;
-        }
-        else if (sum_count == 192)
-        {
+        } else if (sum_count == 192) {
             printf ("found flag_framer_start:line:%lu col:%lu\n", start_pos / 8 + 1, start_pos % 8);
             break;
         }
@@ -78,10 +69,8 @@ NEXT:
     /* format_seqnum */
     uint8_t framer_struct[17280][9] = {0x00};
     uint64_t var_x, var_y;
-    for(var_y = 0; var_y < 9; var_y++)
-    {
-        for(var_x = 0; var_x < 17280; var_x ++)
-        {
+    for(var_y = 0; var_y < 9; var_y++) {
+        for(var_x = 0; var_x < 17280; var_x ++) {
             framer_struct[var_x][var_y] = org_buff[word_pos++];
         }
     }
@@ -95,24 +84,18 @@ NEXT:
     printf ("Get screamble_sequence is oK\n");
 
     int i = 2;
-    while(i--)
-    {
+    while(i--) {
         uint8_t loop_count = 0;
         int  loop_bit;
-        for (var_y = 0; var_y < 9; var_y++)
-        {
-            for (var_x = 0; var_x < 17280; var_x++)
-            {
+        for (var_y = 0; var_y < 9; var_y++) {
+            for (var_x = 0; var_x < 17280; var_x++) {
                 /* skip A1 A2 J0 Z0 total:576 */
-                if ((var_y == 0) && (var_x == 0))
-                {
+                if ((var_y == 0) && (var_x == 0)) {
                     var_x = 576;
                 }
-                for (loop_bit = 7; loop_bit >= 0; loop_bit --)
-                {
+                for (loop_bit = 7; loop_bit >= 0; loop_bit --) {
                     (GetBit(framer_struct[var_x][var_y], loop_bit) ^ GetBit(screamble_sequnce[loop_count++], 0)) ? SetBit(framer_struct[var_x][var_y], loop_bit) : ClearBit(framer_struct[var_x][var_y], loop_bit);
-                    if (loop_count == 127)
-                    {
+                    if (loop_count == 127) {
                         loop_count = 0;
                     }
                 }
@@ -121,20 +104,19 @@ NEXT:
     }
 //#endif
 
+//#ifdef _DEBUG
     printf ("framer_num:%u\n", framer_num);
-    for (var_x = 0; var_x < 17280; var_x++)
-    {
-        for(var_y = 0; var_y < 9; var_y++)
-        {
+    for (var_x = 0; var_x < 17280; var_x++) {
+        for(var_y = 0; var_y < 9; var_y++) {
 //  for (var_y = 0; var_y < 9; var_y++){
 //      for(var_x = 0; var_x < 17280; var_x++){
             printf("[0x%02x] ", framer_struct[var_x][var_y]);
         }
         printf ("\n");
     }
+//#endif
 
-    if (framer_num == 1)
-    {
+    if (framer_num == 1) {
         goto NEXT;
     }
 
@@ -153,10 +135,8 @@ int scrambler_get_sequence(uint8_t *sequence_arr)
 
     int tmp_bit = 0;
     int var ;
-    for (var = 0;; var++)
-    {
-        if ((cur_status == reset_status) && (var != 0))
-        {
+    for (var = 0;; var++) {
+        if ((cur_status == reset_status) && (var != 0)) {
             printf ("length:%d\n", var);
             break;
         }
@@ -167,8 +147,7 @@ int scrambler_get_sequence(uint8_t *sequence_arr)
     }
 
 #ifdef _DEBUG
-    for (var = 0; var < sizeof(sequence_arr); var++)
-    {
+    for (var = 0; var < sizeof(sequence_arr); var++) {
         if (var % 16 == 0)
             printf ("\n");
         printf ("[0x%02x] ", sequence_arr[var]);

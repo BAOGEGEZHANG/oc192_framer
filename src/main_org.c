@@ -4,9 +4,8 @@
 //#define _SHOW_SCREAMBLER_SEQUENCE
 
 //#define _SHOW_DIRECTFILE
-#define _DESCREAMBLER
+//#define _DESCREAMBLER
 #define _SHOW_FREAMER_ARRAY
-#define PAYLOAD_BYTES  (17280 - 640) * 9
 
 int scrambler_get_sequence ( uint8_t *sequence_arr );
 
@@ -147,44 +146,6 @@ NEXT:
     }
 
 #endif /*_DESCREAMBLER*/
-
-	uint8_t payload_struct[PAYLOAD_BYTES] = {0x00};
-	word_pos = 0;
-
-	for (var_y = 0; var_y < 9; var_y++){
-		for (var_x = 640; var_x < 17280; var_x ++){
-			payload_struct[word_pos++] = framer_struct[var_x][var_y];	
-		}
-	}
-
-#if 1
-    uint64_t register_rol = -1;
-    uint64_t tmp_loop_register;
-
-    for (tmp_loop_register = 0; tmp_loop_register < 21; tmp_loop_register++){
-      register_rol = ClearBit64(register_rol, 63 - tmp_loop_register);
-    }
-    int tmp_loop_bits;
-    uint64_t tmp_bit;
-
-    word_pos = 0;
-    for (word_pos = 0; word_pos < PAYLOAD_BYTES; word_pos++){
-      for (tmp_loop_bits = 7; tmp_loop_bits >= 0 ; tmp_loop_bits--){
-        tmp_bit = GetBit64(payload_struct[word_pos], tmp_loop_bits) ;
-        tmp_bit ^ GetBit64(register_rol, 42)  ? SetBit(payload_struct[word_pos], tmp_loop_bits):ClearBit(payload_struct[word_pos], tmp_loop_bits) ;
-        register_rol =  register_rol << 1;
-        register_rol = ClearBit64(  register_rol, 43);
-        register_rol = (tmp_bit ? SetBit64(register_rol, 0): ClearBit64(register_rol, 0));
-      }
-    }
-#endif
-
-#if 0	
-    for (word_pos = 0; word_pos < PAYLOAD_BYTES; word_pos++){
-			if (word_pos % 8 == 0)	printf ("\n");
-			printf ("[0x%02x] ", payload_struct[word_pos]);	
-		}
-#endif
 
 #ifdef _SHOW_FREAMER_ARRAY
     printf ( "framer_num:%u\n", framer_num );
